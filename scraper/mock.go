@@ -17,6 +17,7 @@ import (
 	"github.com/gosnmp/gosnmp"
 )
 
+//nolint:revive,gocritic
 func NewMockSNMPScraper(get map[string]gosnmp.SnmpPDU, walk map[string][]gosnmp.SnmpPDU) *mockSNMPScraper {
 	return &mockSNMPScraper{
 		GetResponses:  get,

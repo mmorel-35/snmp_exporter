@@ -1,11 +1,23 @@
 version: "2"
 linters:
   enable:
+    - contextcheck
     - errorlint
+    - exptostd
     - gocritic
+    - govet
     - misspell
+    - modernize
+    - nilerr
+    - noctx
     - revive
     - sloglint
+    - staticcheck
+    - thelper
+    - tparallel
+    - unconvert
+    - usestdlibvars
+    - usetesting
   disable:
     - unused
   settings:
@@ -17,11 +29,6 @@ linters:
       disabled-checks:
         - hugeParam
         - unnamedResult
-    revive:
-      rules:
-        - name: unused-parameter
-          severity: warning
-          disabled: true
   exclusions:
     presets:
       - comments

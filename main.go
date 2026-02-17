@@ -173,7 +173,7 @@ func handler(w http.ResponseWriter, r *http.Request, logger *slog.Logger, export
 
 func updateConfiguration(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "POST":
+	case http.MethodPost:
 		rc := make(chan error)
 		reloadCh <- rc
 		if err := <-rc; err != nil {
@@ -317,7 +317,7 @@ func main() {
 	})
 	http.HandleFunc("/-/reload", updateConfiguration) // Endpoint to reload configuration.
 	// Endpoint to respond to health checks
-	http.HandleFunc("/-/healthy", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/-/healthy", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Healthy"))
 	})
@@ -372,7 +372,7 @@ func main() {
 		http.Handle("/", landingPage)
 	}
 
-	http.HandleFunc(configPath, func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(configPath, func(w http.ResponseWriter, _ *http.Request) {
 		sc.mu.RLock()
 		c, err := yaml.Marshal(sc.C)
 		sc.mu.RUnlock()

@@ -339,15 +339,15 @@ func (c Collector) collect(ch chan<- prometheus.Metric, logger *slog.Logger, cli
 		// Set the metrics options.
 		func(g *gosnmp.GoSNMP) {
 			var sent time.Time
-			g.OnSent = func(x *gosnmp.GoSNMP) {
+			g.OnSent = func(*gosnmp.GoSNMP) {
 				sent = time.Now()
 				c.metrics.SNMPPackets.Inc()
 				packets++
 			}
-			g.OnRecv = func(x *gosnmp.GoSNMP) {
+			g.OnRecv = func(*gosnmp.GoSNMP) {
 				c.metrics.SNMPDuration.Observe(time.Since(sent).Seconds())
 			}
-			g.OnRetry = func(x *gosnmp.GoSNMP) {
+			g.OnRetry = func(*gosnmp.GoSNMP) {
 				c.metrics.SNMPRetries.Inc()
 				retries++
 			}
@@ -431,7 +431,7 @@ func (c Collector) Collect(ch chan<- prometheus.Metric) {
 	ctx, cancel := context.WithCancel(c.ctx)
 	defer cancel()
 	workerChan := make(chan *NamedModule)
-	for i := 0; i < workerCount; i++ {
+	for i := range workerCount {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
@@ -717,9 +717,9 @@ func applyRegexExtracts(metric *config.Metric, pduValue string, labelnames, labe
 
 func enumAsInfo(metric *config.Metric, value int, labelnames, labelvalues []string) []prometheus.Metric {
 	// Lookup enum, default to the value.
-	state, ok := metric.EnumValues[int(value)]
+	state, ok := metric.EnumValues[value]
 	if !ok {
-		state = strconv.Itoa(int(value))
+		state = strconv.Itoa(value)
 	}
 	labelnames = append(labelnames, metric.Name)
 	labelvalues = append(labelvalues, state)
@@ -797,10 +797,7 @@ func bits(metric *config.Metric, value any, labelnames, labelvalues []string) []
 // Some routers exclude trailing 0s in responses.
 func splitOid(oid []int, count int) ([]int, []int) {
 	head := make([]int, count)
-	tailCapacity := len(oid) - count
-	if tailCapacity < 0 {
-		tailCapacity = 0
-	}
+	tailCapacity := max(len(oid)-count, 0)
 	tail := make([]int, 0, tailCapacity)
 	for i, v := range oid {
 		if i < count {

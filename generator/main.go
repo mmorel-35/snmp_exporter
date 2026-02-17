@@ -32,7 +32,7 @@ import (
 var cannotFindModuleRE = regexp.MustCompile(`Cannot find module \((.+)\): (.+)`)
 
 // Generate a snmp_exporter config and write it out.
-func generateConfig(nodes *Node, nameToNode map[string]*Node, logger *slog.Logger) error {
+func generateConfig(nodes *Node, _ map[string]*Node, logger *slog.Logger) error {
 	outputPath, err := filepath.Abs(*outputPath)
 	if err != nil {
 		return fmt.Errorf("unable to determine absolute path for output")
